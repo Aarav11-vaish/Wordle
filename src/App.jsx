@@ -128,7 +128,7 @@ const actualMap = buildFreqMap(word);
   useEffect(() => {
     const fetchWord = async () => {
       try {
-        const res = await fetch('http://localhost:3000/words');
+const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/words`);
         const data = await res.json();
         setWordset(new Set(data));
 
