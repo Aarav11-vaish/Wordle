@@ -176,7 +176,7 @@ const actualMap = buildFreqMap(word);
 
       <button onClick={handlesubmit} >press to start</button>
       {
-        clicked && <h2>The word is {word} </h2>
+        clicked && <h2>A five letter word is assigned</h2>
       }
       <div className="flex flex-col items-center">
         {board.map((row, i) => (
