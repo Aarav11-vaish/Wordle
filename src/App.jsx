@@ -62,22 +62,22 @@ const actualMap = buildFreqMap(word);
 
       if (e.key === "Enter" && currentcol === 5) {
         const guess = board[currentrow].join("").toUpperCase();
-
+        
         if (guess === word.toUpperCase()) {
           alert("🎉 Congratulations! You guessed the word!");
           setBoard(Array(6).fill().map(() => Array(5).fill("")));
           setcurrentrow(0);
           setcurrentcol(0);
           setClicked(false);
-        actualMap.clear();
-        newRow.length = 0;
-        setGrid(
-          Array.from({ length: 6 }, () => Array(5).fill({ letter: '', color: '' }))
-        );
-                  setWord("");
+          actualMap.clear();
+          newRow.length = 0;
+          setGrid(
+            Array.from({ length: 6 }, () => Array(5).fill({ letter: '', color: '' }))
+          );
+          setWord("");
           return;
         }
-
+        
         if (wordset.has(guess)) {
           
           
@@ -87,14 +87,14 @@ const actualMap = buildFreqMap(word);
               // turn input box to green
               actualMap.set(guess[i], actualMap.get(guess[i]) - 1);// whats is this doing?
               console.log("Actual map after green ->", actualMap);
-
+              
               // reduce frequency of that letter in map 
             }
             else {
               newRow.push({ letter: guess[i], color: '' }); // decide later
             }
           }
-
+          
           for (let i = 0; i < 5; i++) {
             if (newRow[i].color === '' && actualMap.get(guess[i]) > 0) {
               newRow[i].color = 'yellow';
@@ -108,11 +108,25 @@ const actualMap = buildFreqMap(word);
             copy[currentrow] = newRow;
             return copy;
           });
-
+          
           setcurrentrow(prev => prev + 1);
           setcurrentcol(0);
         } else {
           alert("❌ No word in the list");
+        }
+        if(currentrow==6){
+          alert(`The word was ${word}. Better luck next time!`);
+          setBoard(Array(6).fill().map(() => Array(5).fill("")));
+          setcurrentrow(0);
+          setcurrentcol(0);
+          setClicked(false);
+          actualMap.clear();
+          newRow.length = 0;
+          setGrid(
+            Array.from({ length: 6 }, () => Array(5).fill({ letter: '', color: '' }))
+          );
+          setWord("");
+          return;
         }
       }
     };
