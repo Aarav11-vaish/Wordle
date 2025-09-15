@@ -9,53 +9,121 @@ function App() {
       return Array(5).fill("");
     })
   )
+  const [grid, setGrid] = useState(
+    Array.from({ length: 6 }, () => Array(5).fill({ letter: '', color: '' }))
+  );
   const [currentrow, setcurrentrow] = useState(0);
   const [currentcol, setcurrentcol] = useState(0);
   const [wordset, setWordset] = useState(new Set());
+  function buildFreqMap(str) {
+            const map = new Map();
+            for (let ch of str) {
+              map.set(ch, (map.get(ch) || 0) + 1);
+            }
+            return map;
+          }
+const actualMap = buildFreqMap(word);
+          const newRow = [];
+
   useEffect(() => {
     const handlekeypress = (e) => {
-      if (/^[A-Za-z]$/.test(e.key) && currentcol < 5) { // Check if the key is a letter
-        const newboard = board.map((row) => [...row]);
-        console.log(newboard);
-        newboard[currentrow][currentcol] = e.key.toUpperCase();
-        setBoard(newboard);
-        setcurrentcol(currentcol + 1);
+      if (!word) return; // don’t allow typing until word is ready
+
+      if (/^[A-Za-z]$/.test(e.key)) {
+        setBoard(prevBoard => {
+          return prevBoard.map((row, i) => [...row]); // clone
+        });
+        setBoard(prevBoard => {
+          return prevBoard.map((row, i) => {
+            if (i !== currentrow) return row;
+            let newRow = [...row];
+            if (currentcol < 5) {
+              newRow[currentcol] = e.key.toUpperCase();
+            }
+            return newRow;
+          });
+        });
+        setcurrentcol(prev => (prev < 5 ? prev + 1 : prev));
       }
 
-      if (e.key === "Backspace" && currentcol > 0) {
-        const newboard = board.map((row) => [...row]);
-        newboard[currentrow][currentcol - 1] = "";
-        setBoard(newboard);
-        setcurrentcol(currentcol - 1);
+      if (e.key === "Backspace") {
+        setBoard(prevBoard => {
+          return prevBoard.map((row, i) => {
+            if (i !== currentrow) return row;
+            let newRow = [...row];
+            if (currentcol > 0) {
+              newRow[currentcol - 1] = "";
+            }
+            return newRow;
+          });
+        });
+        setcurrentcol(prev => (prev > 0 ? prev - 1 : prev));
       }
 
       if (e.key === "Enter" && currentcol === 5) {
-        if (word.toLowerCase() === board[currentrow].join("").toLowerCase()) {
-          alert("Congratulations! You guessed the word!");
+        const guess = board[currentrow].join("").toUpperCase();
+
+        if (guess === word.toUpperCase()) {
+          alert("🎉 Congratulations! You guessed the word!");
+          setBoard(Array(6).fill().map(() => Array(5).fill("")));
           setcurrentrow(0);
           setcurrentcol(0);
           setClicked(false);
-          setWord("");
-          setBoard(
-            Array(6).fill().map(() => {
-              return Array(5).fill("");
-            })
-          );
+        actualMap.clear();
+        newRow.length = 0;
+        setGrid(
+          Array.from({ length: 6 }, () => Array(5).fill({ letter: '', color: '' }))
+        );
+                  setWord("");
           return;
         }
-        if (wordset.has(board[currentrow].join("").toLowerCase())) {
-          setcurrentrow(currentrow + 1);
-          setcurrentcol(0);
 
-        }
-        else {
-          alert("Word not found");
+        if (wordset.has(guess)) {
+          
+          
+          for (let i = 0; i < 5; i++) {
+            if (guess[i] === word[i]) {
+              newRow.push({ letter: guess[i], color: 'green' });
+              // turn input box to green
+              actualMap.set(guess[i], actualMap.get(guess[i]) - 1);// whats is this doing?
+              console.log("Actual map after green ->", actualMap);
+
+              // reduce frequency of that letter in map 
+            }
+            else {
+              newRow.push({ letter: guess[i], color: '' }); // decide later
+            }
+          }
+
+          for (let i = 0; i < 5; i++) {
+            if (newRow[i].color === '' && actualMap.get(guess[i]) > 0) {
+              newRow[i].color = 'yellow';
+              actualMap.set(guess[i], actualMap.get(guess[i]) - 1);
+            } else if (newRow[i].color === '') {
+              newRow[i].color = 'grey';
+            }
+          }
+          setGrid(prev => {
+            const copy = [...prev];
+            copy[currentrow] = newRow;
+            return copy;
+          });
+
+          setcurrentrow(prev => prev + 1);
+          setcurrentcol(0);
+        } else {
+          alert("❌ No word in the list");
         }
       }
-    }
+    };
+
     window.addEventListener("keydown", handlekeypress);
     return () => window.removeEventListener("keydown", handlekeypress);
-  }, [wordset, currentcol, currentrow, board]);
+  }, [word, wordset, currentrow, currentcol]);
+
+  useEffect(() => {
+    console.log("Updated wordset ->", wordset);
+  }, [wordset]);
 
   useEffect(() => {
     const fetchWord = async () => {
@@ -63,6 +131,7 @@ function App() {
         const res = await fetch('http://localhost:3000/words');
         const data = await res.json();
         setWordset(new Set(data));
+
         console.log("Data fetched ->", data);
         if (clicked) {
           setWord(data[Math.floor(Math.random() * data.length)]);
@@ -78,7 +147,6 @@ function App() {
 
   function handlesubmit() {
     setClicked(true);
-    console.log("Button clicked");
   }
 
 
@@ -89,6 +157,8 @@ function App() {
           <input
             key={`${i}-${j}`}
             maxLength={1}
+            value={board[i][j]}
+            readOnly
             className="border border-gray-400 rounded-sm m-2 p-4 w-14 text-center"
             type="text"
           />
@@ -108,8 +178,22 @@ function App() {
       {
         clicked && <h2>The word is {word} </h2>
       }
-      <div className='flex flex-col items-center justify-center'>
-        {letterbox()}
+      <div className="flex flex-col items-center">
+        {board.map((row, i) => (
+          <div key={i} className="flex">
+            {row.map((cell, j) => (
+              <div
+                key={j}
+                className={`m-2 p-4 w-14 text-center border rounded-sm
+            ${grid[i][j].color === 'green' ? 'bg-green-500 text-white' :
+                    grid[i][j].color === 'yellow' ? 'bg-yellow-500 text-white' :
+                      grid[i][j].color === 'grey' ? 'bg-gray-400 text-white' : ''}`}
+              >
+                {cell}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
 
     </div>
