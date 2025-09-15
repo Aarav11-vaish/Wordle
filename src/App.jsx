@@ -114,7 +114,7 @@ const actualMap = buildFreqMap(word);
         } else {
           alert("❌ No word in the list");
         }
-        if(currentrow==6){
+        if(currentrow+1===6){
           alert(`The word was ${word}. Better luck next time!`);
           setBoard(Array(6).fill().map(() => Array(5).fill("")));
           setcurrentrow(0);
@@ -164,22 +164,6 @@ const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/words`);
   }
 
 
-  const letterbox = () => {
-    return Array.from({ length: 6 }, (_, i) => (
-      <div key={i} className="flex justify-center ">
-        {Array.from({ length: 5 }, (_, j) => (
-          <input
-            key={`${i}-${j}`}
-            maxLength={1}
-            value={board[i][j]}
-            readOnly
-            className="border border-gray-400 rounded-sm m-2 p-4 w-14 text-center"
-            type="text"
-          />
-        ))}
-      </div>
-    ));
-  };
 
 
   return (
