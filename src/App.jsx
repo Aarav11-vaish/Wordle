@@ -172,7 +172,7 @@ const actualMap = buildFreqMap(word);
     <div >
 
 
-      <h1>Wordle Clone</h1>
+      <h1 className=''>Wordle Clone</h1>
 
       <button onClick={handlesubmit} >press to start</button>
       {
