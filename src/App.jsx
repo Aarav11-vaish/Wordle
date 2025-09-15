@@ -24,9 +24,6 @@ function App() {
           }
 const actualMap = buildFreqMap(word);
           const newRow = [];
-const helpcenter = () => {
-  window.open(photo, "_blank");
-};
 
 
   useEffect(() => {
