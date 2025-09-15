@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-
+import photo  from './assets/help.png'
 function App() {
   const [word, setWord] = useState('');
   const [clicked, setClicked] = useState(false);
@@ -24,6 +24,10 @@ function App() {
           }
 const actualMap = buildFreqMap(word);
           const newRow = [];
+const helpcenter = () => {
+  window.open(photo, "_blank");
+};
+
 
   useEffect(() => {
     const handlekeypress = (e) => {
@@ -192,6 +196,9 @@ const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/words`);
             ))}
           </div>
         ))}
+        <button
+        onClick={helpcenter()}
+        >Help</button>
       </div>
 
     </div>
