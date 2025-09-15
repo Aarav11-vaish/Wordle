@@ -193,9 +193,7 @@ const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/words`);
             ))}
           </div>
         ))}
-        <button
-        onClick={helpcenter()}
-        >Help</button>
+       
       </div>
 
     </div>
